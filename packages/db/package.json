@@ -9,10 +9,10 @@
     "prisma": "^7.10.0"
   },
   "exports": {
-    "./client":"./index.ts"
+    "./client": "./index.ts"
   },
   "scripts": {
-    "generate":"bunx prisma generate"
+    "generate": "bunx prisma generate"
   },
   "peerDependencies": {
     "typescript": "^7"
