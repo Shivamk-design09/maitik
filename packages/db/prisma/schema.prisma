@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum FriendsStatus {
+  accepted
+  rejected
+  pending
+}
+
+enum QuestionSign {
+  PLUS
+  MINUS
+  DIVIDE
+  MULTIPLICATION
+}
+
+enum GameMemberStatus {
+  WON 
+  LOSS
+}
+
+enum GameStatus {
+  RUNNING
+  SEARCHING_FOR_PLAYERS
+  OVER  
+}
+
+model User {
+  id       String @id @default(uuid())
+  email    String @unique   //xyz@gmail.com
+  password String //hash
+  username String @unique   //xyz
+
+  rating     UserRating? //optional
+  gameMember GameMember[]
+  sender     Friends[]        @relation("sender")
+  reciever   Friends[]        @relation("reciever")
+  answer     QuestionAnswer[]
+}
+
+model Game {
+  id         String           @id @default(uuid())
+  timelimit  Int    // 60 sec
+  startedAt  DateTime  
+  status GameStatus
+  endAt      DateTime
+  gameMember GameMember[]
+  question   Question[]
+  answer     QuestionAnswer[] 
+
+}
+
+model Question {
+  id           String           @id @default(uuid())
+  gameId       String // game Id
+  game         Game             @relation(references: [id], fields: [gameId])
+  systemAnswer Int // 5 real answer of the question 
+  operation1   Int // 2
+  operation2   Int // 3
+  sign         QuestionSign // + - x %
+  answer       QuestionAnswer[]
+}
+
+model QuestionAnswer {
+  id         String   @id @default(uuid())
+  answer     Int
+  questionId String
+  question   Question @relation(references: [id], fields: [questionId])
+  gameId     String
+  game       Game     @relation(references: [id], fields: [gameId])
+  userId     String
+  user       User     @relation(references: [id], fields: [userId])
+}
+
+model GameMember {
+  id     String @id @default(uuid())
+  status GameMemberStatus
+  userId String
+  user   User   @relation(references: [id], fields: [userId])
+  GameId String
+  game   Game   @relation(references: [id], fields: [GameId])
+}
+
+model UserRating {
+  id     String @id @default(uuid())
+  rating Int
+  userId String @unique
+  user   User   @relation(references: [id], fields: [userId])
+}
+
+model Friends {
+  id         String        @id @default(uuid())
+  status     FriendsStatus @default(pending)
+  recieverId String
+  reciever   User          @relation("reciever", references: [id], fields: [recieverId])
+  senderid   String
+  sender     User          @relation("sender", references: [id], fields: [senderid])
+}
